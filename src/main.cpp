@@ -64,8 +64,6 @@ NTL_CLIENT
 	time_v = 0;
 	num=vector<long>(8);
 	Functions::read_config(num, genq);//读取config文件里的参数
-
-	 
 	 
 	 m = num[1];//行数 m
 	 n = num[2];//列数 n
