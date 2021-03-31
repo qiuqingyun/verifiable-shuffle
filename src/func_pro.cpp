@@ -64,9 +64,24 @@ void func_pro::set_A(vector<vector<ZZ>*>* A,  vector<vector<vector<long>* >* >* 
 	//Creates the matrixs X, containing 1 to N
 	X= new vector<vector<ZZ>* >(m);
 	set_X(X, m,n);
+	// for(int i=0;i<m;i++){
+	// 	for(int j=0;j<n;j++){
+	// 		cout<<X->at(i)->at(j)<<" ";
+	// 	}
+	// 	cout<<endl;
+	// }
+	// cout<<endl;
+	// for(int i=0;i<m;i++){
+	// 	for(int j=0;j<n;j++){
+	// 		cout<<"("<<pi->at(i)->at(j)->at(0);
+	// 		cout<<","<<pi->at(i)->at(j)->at(1)<<")";
+	// 	}
+	// 	cout<<endl;
+	// }
+	// cout<<endl;
 
-	string name = "example.txt";
-/*	ofstream ost;
+/*	string name = "example.txt";
+	ofstream ost;
 	ost.open(name.c_str(),ios::app);
 	ost<<"matrix A "<<endl;*/
 	vector<ZZ>* r;
@@ -77,7 +92,9 @@ void func_pro::set_A(vector<vector<ZZ>*>* A,  vector<vector<vector<long>* >* >* 
 			col = pi->at(i)->at(j)->at(1);
 			r->at(j)=X->at(row)->at(col);
 		//	ost<<r->at(j)<<" ";
+			// cout<<r->at(j)<<" "; 			
 		}
+		// cout<<endl;
 	//	ost<<endl;
 		A->at(i)=r;
 	}
@@ -91,8 +108,8 @@ void func_pro::set_x2(vector<vector<ZZ>* >* chal_x2, ZZ x2, long m, long n){
 	long i,j;
 	ZZ ord = G.get_ord();
 
-	string name = "example.txt";
-/*	ofstream ost;
+/*	string name = "example.txt";
+	ofstream ost;
 	ost.open(name.c_str(),ios::app);
 	ost<<"matrix X, challenges to power "<<endl;*/
 	temp = to_ZZ(1);
@@ -143,8 +160,8 @@ void func_pro::set_B(vector<vector<ZZ>* >* B, vector<vector<ZZ>* >* chal_x2,vect
 	long n = pi->at(0)->size();
 
 	//permute the exponents in s using the permutation  pi
-	string name = "example.txt";
-/*	ofstream ost;
+/*	string name = "example.txt";
+	ofstream ost;
 	ost.open(name.c_str(),ios::app);
 	ost<<"matrix B, permuted challenges "<<endl;*/
 	for (i=0; i<m; i++ ){
@@ -170,16 +187,16 @@ void func_pro::set_D(vector<vector<ZZ>* >* D, vector<vector<ZZ>* >* A, vector<ve
 	long m = A->size();
 	long n = A->at(0)->size();
 
-	string name = "example.txt";
-/*	ofstream ost;
+/*	string name = "example.txt";
+	ofstream ost;
 	ost.open(name.c_str(),ios::app);
 	ost<<"set vector D = yA_ij +B_ij "<<endl;*/
 	for (i= 0; i<m; i++){
 		row = new vector<ZZ>(n);
 		for (j = 0; j<n; j++){
-			MulMod(temp, chal_y4,A->at(i)->at(j),ord);
-			SubMod(temp_1, B->at(i)->at(j), chal_z4,ord);
-			AddMod(row->at(j),temp ,temp_1, ord);
+			MulMod(temp, chal_y4,A->at(i)->at(j),ord);//y × A_ij
+			SubMod(temp_1, B->at(i)->at(j), chal_z4,ord);//B_ij - z
+			AddMod(row->at(j),temp ,temp_1, ord);//y × A_ij + B_ij - z
 		//	ost<<temp<<" ";
 		}
 		//ost<<endl;
@@ -195,8 +212,8 @@ void func_pro::set_D_h(vector<vector<ZZ>* >* D_h, vector<vector<ZZ>* >* D){
 	long m = D_h->size();
 	long n = D->at(0)->size();
 	row = new vector<ZZ>(n);
-	string name = "example.txt";
-/*	ofstream ost;
+/*	string name = "example.txt";
+	ofstream ost;
 	ost.open(name.c_str(),ios::app);
 	ost<<"Hadamard products over D, 1 row = D_0, D_0¡D_1,... "<<endl;*/
 	for(i=0; i<n; i++){
@@ -238,8 +255,8 @@ void func_pro::commit_B0(vector<ZZ>* B_0, ZZ &r_B0, Mod_p &c_B0 ){
 	ZZ ord= H.get_ord();
 	long n = B_0->size();
 
-	string name = "example.txt";
-/*	ofstream ost;
+/*	string name = "example.txt";
+	ofstream ost;
 	ost.open(name.c_str(),ios::app);
 	ost<<"r_B= row 0 for matrix B and commitment  "<<endl;*/
 	r_B0  =  RandomBnd(ord);
@@ -261,14 +278,14 @@ void func_pro::set_Rb(vector<vector<ZZ>* >* B, vector<vector<ZZ>*>* R, ZZ &R_b){
 	long m = B->size();
 	long n = B->at(0)->size();
 
-	string name = "example.txt";
-/*	ofstream ost;
+/*	string name = "example.txt";
+	ofstream ost;
 	ost.open(name.c_str(),ios::app);
 	ost<<"R_b =sum sum r_ij*B_ij  ";*/
 	R_b = 0;
 	for (i = 0; i<m; i++){
 		for (j = 0; j<n; j++){
-			MulMod(temp, B->at(i)->at(j),R->at(i)->at(j), ord);
+			MulMod(temp, B->at(i)->at(j),R->at(i)->at(j), ord);//b_ij × R_ij
 			AddMod(R_b,R_b, temp ,ord);
 		}
 	}
@@ -303,8 +320,8 @@ void func_pro::commit_a(vector<ZZ>* a, vector<ZZ>* r_a, vector<Mod_p>* c_a){
 	ZZ ord = H.get_ord();
 	long m = a->size()/2;
 
-	string name = "example.txt";
-/*	ofstream ost;
+/*	string name = "example.txt";
+	ofstream ost;
 	ost.open(name.c_str(),ios::app);
 	ost<<"vector (for reencryption in round 5) a r_a c_a "<<endl;*/
 	for(i= 0; i<m; i++){

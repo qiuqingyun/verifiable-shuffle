@@ -152,8 +152,8 @@ string Prover::round_1(){
 	for (i=0; i<m; i++){
 		ost << c_A->at(i)<< " ";
 	}
+	ost.close();
 	return name;
-
 }
 
 //round_3, permuted the exponents in s,  picks random elements and commits to values

@@ -23,13 +23,14 @@ Pedersen::Pedersen() {
 
 }
 
-//Generates an instance of Pedersen with group H, which is able to commit up to n elements
+//生成一个基于群H的Pedersen实例，它最多可以提交n个元素。
 Pedersen::Pedersen(long n, G_q H){
 	long i;
 	bool b;
 	ZZ ran;
 	Mod_p temp;
 	G = H;
+	int count=0;
 	gen = new vector<Mod_p>(n+1);
 	SetSeed(to_ZZ(time(0)));
 /*	string name = "example.txt";
@@ -37,11 +38,12 @@ Pedersen::Pedersen(long n, G_q H){
 	ost.open(name.c_str(),ios::app);
 	ost<<"ck for pedersen ";*/
 	for (i =0; i <=n; i++)
-	{
+	{//生成n+1个G的生成元(g^r)作为公钥，存放在gen中，第一个给随机数，后面的n个给要进行承诺的数
 		b = true;
 		while(b){
 			ran = RandomBnd(G.get_ord());
 			temp = G.get_gen().expo(ran);
+			// cout<<++count<<": "<<temp<<endl;
 			if (G.is_generator(temp))
 			{
 				(*gen).at(i)=temp;
@@ -52,7 +54,6 @@ Pedersen::Pedersen(long n, G_q H){
 	}
 //	ost<<endl;
 }
-
 
 /*Generates an instance of Pedersen with group G_q subset of Z_p and order o and generator g,
  * and which is able to commit up to n elements */
@@ -78,7 +79,6 @@ Pedersen::Pedersen(Mod_p g, long o, long p, long n){
 
 }
 
-
 /*Generates an instance of Pedersen with group G_q subset of Z_p and order o and generator g,
  * and which is able to commit up to n elements */
 Pedersen::Pedersen(Mod_p g, long o, ZZ p, long n){
@@ -101,7 +101,6 @@ Pedersen::Pedersen(Mod_p g, long o, ZZ p, long n){
 		}
 	}
 }
-
 
 /*Generates an instance of Pedersen with group G_q subset of Z_p and order o and generator g,
  * and which is able to commit up to n elements */
@@ -128,7 +127,6 @@ Pedersen::Pedersen(Mod_p g, ZZ o, ZZ p, long n){
 
 }
 
-
 /*Generates an instance of Pedersen with group G_q subset of Z_p and order o and the generator g has value g_val,
  * and which is able to commit up to n elements */
 Pedersen::Pedersen(long g_val, long o, long p, long n){
@@ -154,7 +152,6 @@ Pedersen::Pedersen(long g_val, long o, long p, long n){
 
 }
 
-
 /*Generates an instance of Pedersen with group G_q subset of Z_p and order o and the generator g has value g_val,
  * and which is able to commit up to n elements */
 Pedersen::Pedersen(long g_val, long o, ZZ p, long n){
@@ -178,7 +175,6 @@ Pedersen::Pedersen(long g_val, long o, ZZ p, long n){
 	}
 	gen_prec = 0;
 }
-
 
 /*Generates an instance of Pedersen with group G_q subset of Z_p and order o and the generator g has value g_val,
  * and which is able to commit up to n elements */
@@ -205,8 +201,6 @@ Pedersen::Pedersen(long g_val, ZZ o, ZZ p, long n){
 
 }
 
-
-
 /*Generates an instance of Pedersen with group G_q subset of Z_p and order o and the generator g has value g_val,
  * and which is able to commit up to n elements */
 Pedersen::Pedersen(ZZ g_val, long o, long p, long n){
@@ -230,8 +224,6 @@ Pedersen::Pedersen(ZZ g_val, long o, long p, long n){
 	}
 	gen_prec = 0;
 }
-
-
 
 /*Generates an instance of Pedersen with group G_q subset of Z_p and order o and the generator g has value g_val,
  * and which is able to commit up to n elements */
@@ -257,7 +249,6 @@ Pedersen::Pedersen(ZZ g_val, long o, ZZ p, long n){
 	gen_prec = 0;
 }
 
-
 /*Generates an instance of Pedersen with group G_q subset of Z_p and order o and the generator g has value g_val,
  * and which is able to commit up to n elements */
 Pedersen::Pedersen(ZZ g_val, ZZ o, ZZ p, long n){
@@ -281,7 +272,6 @@ Pedersen::Pedersen(ZZ g_val, ZZ o, ZZ p, long n){
 	}
 	gen_prec = 0;
 }
-
 
 /*Generates an instance of Pedersen with group G_q subset of Z_p, p is the modular value of g
  * and order o and the generator g, and which is able to commit up to n elements */
@@ -308,7 +298,6 @@ Pedersen::Pedersen(Mod_p g, long o,  long n){
 	gen_prec = 0;
 }
 
-
 /*Generates an instance of Pedersen with group G_q subset of Z_p, p is the modular value of g
  * and order o and the generator g, and which is able to commit up to n elements */
 Pedersen::Pedersen(Mod_p g, ZZ o,  long n){
@@ -332,7 +321,6 @@ Pedersen::Pedersen(Mod_p g, ZZ o,  long n){
 	}
 	gen_prec = 0;
 }
-
 
 /*Generates an instance of Pedersen with group G_q subset of Z_p, and order o,
  *  and which is able to commit up to n elements */
@@ -358,7 +346,6 @@ Pedersen::Pedersen( long o, long mod,  long n){
 	gen_prec = 0;
 }
 
-
 /*Generates an instance of Pedersen with group G_q subset of Z_p, and order o,
  *  and which is able to commit up to n elements */
 Pedersen::Pedersen( long o, ZZ mod,  long n){
@@ -383,7 +370,6 @@ Pedersen::Pedersen( long o, ZZ mod,  long n){
 	gen_prec = 0;
 }
 
-
 /*Generates an instance of Pedersen with group G_q subset of Z_p, and order o,
  *  and which is able to commit up to n elements */
 Pedersen::Pedersen( ZZ o, ZZ mod,  long n){
@@ -407,7 +393,6 @@ Pedersen::Pedersen( ZZ o, ZZ mod,  long n){
 	}
 	gen_prec = 0;
 }
-
 
 Pedersen::~Pedersen() {
 
@@ -448,14 +433,14 @@ Mod_p Pedersen::commit(const vector<ZZ>*  t, ZZ ran){
 	tstart = (double)clock()/CLOCKS_PER_SEC;
 	mod = G.get_mod();
 	if ((long) t->size() > (long) gen->size())
-	{cout << "to many elements to commit to" << endl;}
+	{cout << "too many elements to commit to" << endl;}
 	else
 	{
-		PowerMod(temp, gen->at(0).get_val(),ran, mod);
+		PowerMod(temp, gen->at(0).get_val(),ran, mod);//h^r
 		for (i = 1; i<=(long) t->size(); i++)
 		{
-			PowerMod(temp_1,gen->at(i).get_val(),t->at(i-1),mod);
-			MulMod(temp,temp,temp_1, mod);
+			PowerMod(temp_1,gen->at(i).get_val(),t->at(i-1),mod);//g_i ^ a_i
+			MulMod(temp,temp,temp_1, mod);//累乘
 		}
 	}
 	tstop = (double)clock()/CLOCKS_PER_SEC;
@@ -463,7 +448,6 @@ Mod_p Pedersen::commit(const vector<ZZ>*  t, ZZ ran){
 	time_cm+=ttime;
 	return Mod_p(temp, mod);
 }
-
 
 //Calculates the commitment to the values in t using randomness r
 Mod_p Pedersen::commit(const vector<Mod_p>*  t,  ZZ ran){
@@ -474,7 +458,7 @@ Mod_p Pedersen::commit(const vector<Mod_p>*  t,  ZZ ran){
 
 	tstart = (double)clock()/CLOCKS_PER_SEC;
 	if ((long) t->size()> (long) gen->size())
-	{cout << "to many elements to commit to" << endl;}
+	{cout << "too many elements to commit to" << endl;}
 	else
 	{
 		PowerMod(temp,gen->at(0).get_val(),ran, mod);
@@ -503,7 +487,7 @@ Mod_p Pedersen::commit(const vector<Mod_p>*  t){
 	ran = RandomBnd(mod);
      cout<< "ran: " << ran << endl;
 	if ((long) t->size()> (long) gen->size())
-	{cout << "to many elements to commit to" << endl;}
+	{cout << "too many elements to commit to" << endl;}
 	else
 	{
 		PowerMod(temp,gen->at(0).get_val(),ran, mod);
@@ -519,7 +503,6 @@ Mod_p Pedersen::commit(const vector<Mod_p>*  t){
 	return Mod_p(temp, mod);
 }
 
-
 //Calculates the commitment to  t using randomness r
 Mod_p Pedersen::commit(ZZ t,  ZZ ran){
 
@@ -534,7 +517,6 @@ Mod_p Pedersen::commit(ZZ t,  ZZ ran){
 	return Mod_p(temp, mod);
 }
 
-
 //Calculates the commitment to t using randomness r
 Mod_p Pedersen::commit(Mod_p t,  long ran){
 
@@ -547,7 +529,6 @@ Mod_p Pedersen::commit(Mod_p t,  long ran){
 	return Mod_p(temp,mod);
 }
 
-
 //Calculates the commitment to t using randomness r
 Mod_p Pedersen::commit(Mod_p t, ZZ ran){
 	ZZ temp,temp_1;
@@ -558,7 +539,6 @@ Mod_p Pedersen::commit(Mod_p t, ZZ ran){
 
 	return Mod_p(temp, mod);
 }
-
 
 //Calculates the commitments to the values in t, generating a random number
 Mod_p Pedersen::commit(Mod_p t){
@@ -577,7 +557,6 @@ Mod_p Pedersen::commit(Mod_p t){
 	return Mod_p(temp, mod);
 }
 
-
 //Calculates the commitment to the values in t using randomness r
 Mod_p Pedersen::commit_opt(const vector<ZZ>*  t, ZZ ran){
 	double tstart, tstop, ttime;
@@ -588,7 +567,7 @@ Mod_p Pedersen::commit_opt(const vector<ZZ>*  t, ZZ ran){
 
 	tstart = (double)clock()/CLOCKS_PER_SEC;
 	if (length > (long) gen->size())
-	{cout << "to many elements to commit to" << endl;}
+	{cout << "too many elements to commit to" << endl;}
 	else
 	{
 		/*if(length <= 1000){
@@ -610,7 +589,6 @@ Mod_p Pedersen::commit_opt(const vector<ZZ>*  t, ZZ ran){
 	return Mod_p(temp, G.get_mod());
 }
 
-
 //Calculates the commitment to  t using randomness r
 Mod_p Pedersen::commit_sw(ZZ t,  ZZ ran){
 
@@ -619,7 +597,6 @@ Mod_p Pedersen::commit_sw(ZZ t,  ZZ ran){
 
 	return Mod_p(temp, G.get_mod());
 }
-
 
 //Calculates the commitment to t using randomness r
 Mod_p Pedersen::commit_sw(Mod_p t,  long ran){
@@ -630,7 +607,6 @@ Mod_p Pedersen::commit_sw(Mod_p t,  long ran){
 	return Mod_p(temp, G.get_mod());
 }
 
-
 //Calculates the commitment to t using randomness r
 Mod_p Pedersen::commit_sw(Mod_p t, ZZ ran){
 
@@ -638,7 +614,6 @@ Mod_p Pedersen::commit_sw(Mod_p t, ZZ ran){
 	multi_expo::multi_expo_sw(temp,to_ZZ(ran), t.get_val(), omega_sw, gen_prec);
 	return Mod_p(temp, G.get_mod());
 }
-
 
 //Calculates the commitments to the values in t, generating a random number
 Mod_p Pedersen::commit_sw(Mod_p t){
@@ -653,7 +628,6 @@ Mod_p Pedersen::commit_sw(Mod_p t){
 
 	return Mod_p(temp, mod);
 }
-
 
 void Pedersen::operator =(const Pedersen& el){
 	G = el.get_group();
@@ -688,9 +662,6 @@ void Pedersen::to_long(long& t, vector<int>* bit_r){
 	//return t;
 }
 
-
-
-
 vector<vector<ZZ>* >* Pedersen::precomp(ZZ g, ZZ h){
 	vector<vector<ZZ>* >* pre;
 	vector<ZZ>* t_1;
@@ -719,5 +690,3 @@ vector<vector<ZZ>* >* Pedersen::precomp(ZZ g, ZZ h){
 	pre->at(1)= t_2;
 	return pre;
 }
-
-

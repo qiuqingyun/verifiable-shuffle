@@ -62,6 +62,7 @@ public:
 	void set_group(G_q G);
 	void set_sk(ZZ s);
 	void set_sk(long s);
+	void set_key(ZZ s,ZZ p);
 
 	//encryption and decryption functions
 	Cipher_elg encrypt(Mod_p m);
@@ -77,6 +78,7 @@ public:
 
 	//decryption function
 	Mod_p decrypt(Cipher_elg c);
+	ZZ decrypt(Cipher_elg c,int flag);
 
 	//Assigment operator
 	void operator =(const ElGammal& el);

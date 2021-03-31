@@ -105,8 +105,8 @@ public:
 	//round 6 stores the output com of round 1 and outputs the challenges for round 7
 	string round_8(string name);
 	//round 8 stores the input and checks the first set of equation, if all is true return challenges e, else -1
-	ZZ round_10(string name, vector<vector<Cipher_elg>* >* e,vector<vector<Cipher_elg>* >* E);
-	ZZ round_10_red(string name, vector<vector<Cipher_elg>* >* e,vector<vector<Cipher_elg>* >* E);
+	int round_10(string name, vector<vector<Cipher_elg>* >* e,vector<vector<Cipher_elg>* >* E);
+	int round_10_red(string name, vector<vector<Cipher_elg>* >* e,vector<vector<Cipher_elg>* >* E);
 
 	void calculate_c(Cipher_elg& c, vector<vector<Cipher_elg>* >* enc);
 	void calculate_ac(Mod_p& com);

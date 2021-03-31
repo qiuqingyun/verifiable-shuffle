@@ -37,21 +37,21 @@ vector<long>* Permutation::permutation(long N){
 	SetSeed(to_ZZ(time(0)));
 
 	//create N times a random number <N, calculates r = i+r%N and switchs the values v[i] and v[r]
-	for (i=0; i<N; i++){
-
+	for (i=0; i<N; i++)
+	{//随机互换
 		r = RandomBnd(N);
 		temp = (*v)[i];
 		r=(i+r)%N;
 		v->at(i)=v->at(r);
 		v->at(r)=temp;
 	}
-	string name = "permu.txt";
+	/* string name = "permu.txt";
 	ofstream ost;
 	ost.open(name.c_str());
 	for(i=0; i<N; i++){
 		ost<<v->at(i)<<" ";
 	}
-	ost.close();
+	ost.close(); */
 	return v;
 
 }
@@ -60,23 +60,26 @@ vector<long>* Permutation::permutation(long N){
  * associated position in a matrix and saves this.
  * For example N 0 15, m=3, n = 5, if the first value in the permutation vector is 7, then the element in the matrix,
  *  the position (0,0) would be (1,1)*/
-void Permutation::perm_matrix(vector<vector<vector<long>* >* >*  pi, long n, long m){
-
+void Permutation::perm_matrix(vector<vector<vector<long>* >* >*  pi, long n, long m)
+{//返回一个包含对应元素shuffle后行列位置的矩阵
 	vector<long>* v=0;
 	long i,j,k,t_1,t_2;
 	vector<vector<long>* >* r=0;
 	vector<long>* el= 0;
 	//generates random permutation
 	v = permutation(n*m);
+	// for(int x=0;x<n*m;x++)
+	// 	cout<<v->at(x)<<" ";
+	// cout<<endl;
 	for (i=0; i< m; i++){
 
 		r=new vector<vector<long>* >(n);
 		for (j=0; j<n; j++){
 
-			k= i*n +j;
-			t_1 = v->at(k)/n;
+			k= i*n +j;//v的index 
+			t_1 = v->at(k)/n;//shuffle后的行
 
-			t_2 = v->at(k)%n;
+			t_2 = v->at(k)%n;//shuffle后的列
 			if (t_2 == 0)
 			{
 				t_1 = t_1 -1;
@@ -90,7 +93,12 @@ void Permutation::perm_matrix(vector<vector<vector<long>* >* >*  pi, long n, lon
 			el->at(0)=t_1;
 			el->at(1)= t_2;
 			r->at(j)=el;
+			// cout<<"("<<r->at(j)->at(0)<<",";
+			// cout<<r->at(j)->at(1)<<") ";
 		}
+		// for(int x=0;x<n;x++)
+			// cout<<r->at(x)<<" ";
+		// cout<<endl;
 		pi->at(i)=r;
 	}
 

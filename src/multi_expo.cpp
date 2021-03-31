@@ -111,7 +111,6 @@ vector<long>* multi_expo::to_basis(ZZ e, long num_b, int omega){
 
 }
 
-
 vector<vector<vector<long>* >* >* multi_expo::to_basis_vec(vector<vector<ZZ>* >* a, long num_b, int omega){
 	vector<vector<vector<long>* >* >* basis_vec=0;
 	vector<vector<long>* >* basis_row=0;
@@ -208,7 +207,7 @@ ZZ multi_expo::expo_mult(const vector<ZZ>* e, ZZ ran, int omega_expo, vector<Mod
 	return prod;
 }
 
-
+//
 void multi_expo::expo_mult(ZZ& prod, const vector<ZZ>* e, ZZ ran, int omega_expo, vector<Mod_p>* gen){
 	long i, j, k, l,t;
 	vector<vector<long>* >* basis_vec;
@@ -216,8 +215,8 @@ void multi_expo::expo_mult(ZZ& prod, const vector<ZZ>* e, ZZ ran, int omega_expo
 	ZZ p, temp_1, temp_2, mod;
 	double two;
 	long num_b;
-	length = e->size();
-	mod = G.get_mod();
+	length = e->size();//需要进行承诺的矩阵尺寸
+	mod = G.get_mod();//模数
 	num_b = NumBits(G.get_ord());
 	l = num_b/omega_expo +1;
 	basis_vec = new vector<vector<long>* >(length+1);
@@ -282,8 +281,6 @@ void multi_expo::expo_mult(ZZ& prod, const vector<ZZ>* e, ZZ ran, int omega_expo
 	}
 	delete basis_vec;
 }
-
-
 
 Cipher_elg multi_expo::expo_mult(const vector<Cipher_elg>* a, vector<ZZ>* e, int omega ){
 	long i, j, k, l,t;

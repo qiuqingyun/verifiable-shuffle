@@ -21,7 +21,7 @@ NTL_CLIENT
 
 class Cipher_elg {
 private:
-	ZZ u,v; //u,v represent u=g^r, v = y^r m, where r is random, y is the public key and m the message
+	ZZ u,v; //u,v represent u=g^r, v = m×y^r , where r is random, y is the public key and m the message
 	ZZ mod; // modular values of the calculations in the cyclic group
 public:
 	//Constructors & Destructor

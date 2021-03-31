@@ -31,7 +31,9 @@ public:
 
 	//generates N=num[0] different ciphertexts
 	static vector<vector<Cipher_elg>* >*  createCipher(vector<long> num);
-	static  void createCipher(vector<vector<Cipher_elg>* >* e, vector<long> num);
+	static void createCipher(vector<vector<Cipher_elg>* >* e, vector<long> num);
+	static void  inputCipher(vector<vector<Cipher_elg>* >* C, vector<long> num);
+	static void decryptCipher(vector<vector<Cipher_elg>* >* C, vector<long> num,int flag);
 	//generates a matrix of random elements
 	static vector<vector<ZZ>* >* randomEl(vector<long> num);
 	static void randomEl( vector<vector<ZZ>*>* R, vector<long> num);

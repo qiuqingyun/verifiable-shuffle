@@ -271,12 +271,18 @@ void ElGammal::set_sk(long s){
 
 void ElGammal::set_sk(ZZ s){
 
-	sk = s;
-	pk = G.get_gen().expo(s);
-	string name = "example.txt";
+	sk = s;//私钥x
+	pk = G.get_gen().expo(s);//生成公钥，y=g^x
+	string name = "ElGammal.txt";
 	ofstream ost;
 	ost.open(name.c_str(),ios::app);
-	ost<<"private key and public key "<<sk<<" "<<pk<<endl;
+	ost<<sk<<"\n"<<pk<<endl;//输出公私钥
+	ost.close();
+}
+void ElGammal::set_key(ZZ s,ZZ p){
+	sk = s;//私钥
+	pk = Mod_p(G.get_mod());
+	pk.set_val(p);//公钥
 }
 
 //functions to encrypt value/element
@@ -325,17 +331,27 @@ Cipher_elg ElGammal::encrypt(Mod_p el, long ran){
 	temp_2 = pk.expo(ran)*el;
 	c = Cipher_elg(temp_1,temp_2);
 	return c;
-
 }
 
+//TODO:改变加密方式
 Cipher_elg ElGammal::encrypt(Mod_p el, ZZ ran){
 	Cipher_elg c;
 	Mod_p temp_1, temp_2;
-	temp_1 = G.get_gen().expo(ran);
-	temp_2 = pk.expo(ran)*el;
+	temp_1 = G.get_gen().expo(ran);//h^r
+	temp_2 = pk.expo(ran)*el;//g^m×y^r
+	// temp_2 = pk.expo(ran)*el;//m×y^r
+	c = Cipher_elg(temp_1,temp_2);//得到(u,v)密文组，u = g^r，v = m×y^r
+	return c;
+}
+
+//TODO:改变加密方式
+Cipher_elg ElGammal::encrypt(long m, ZZ ran){
+	Cipher_elg c;
+	Mod_p temp_1, temp_2;
+	temp_1 = G.get_gen().expo(ran);//h^r
+	temp_2 = pk.expo(ran)*Mod_p(m,G.get_mod());//m×y^r
 	c = Cipher_elg(temp_1,temp_2);
 	return c;
-
 }
 
 
@@ -357,18 +373,7 @@ Cipher_elg ElGammal::encrypt(ZZ m, ZZ ran){
 	return c;
 }
 
-
 Cipher_elg ElGammal::encrypt(long m, long ran){
-	Cipher_elg c;
-	Mod_p temp_1, temp_2;
-	temp_1 = G.get_gen().expo(ran);
-	temp_2 = pk.expo(ran)*Mod_p(m,G.get_mod());
-	c = Cipher_elg(temp_1,temp_2);
-	return c;
-}
-
-
-Cipher_elg ElGammal::encrypt(long m, ZZ ran){
 	Cipher_elg c;
 	Mod_p temp_1, temp_2;
 	temp_1 = G.get_gen().expo(ran);
@@ -379,11 +384,25 @@ Cipher_elg ElGammal::encrypt(long m, ZZ ran){
 
 //Decrypts the ciphertext c
 Mod_p ElGammal::decrypt(Cipher_elg c){
+	if(sk==0)
+		cout<<"can not decrypt, need secret key"<<endl;
+	ZZ temp;
+	Mod_p ans;
+	ZZ mod = G.get_mod();
+	temp = InvMod(c.get_u(),mod);
+	temp = PowerMod(temp,sk, mod);
+	temp = MulMod(temp,c.get_v(),mod);
+	return temp;
+}
+ZZ ElGammal::decrypt(Cipher_elg c,int flag){
+	if(sk==0)
+		cout<<"can not decrypt, need secret key"<<endl;
 	ZZ temp;
 	ZZ mod = G.get_mod();
 	temp = InvMod(c.get_u(),mod);
 	temp = PowerMod(temp,sk, mod);
 	temp = MulMod(temp,c.get_v(),mod);
+	// cout<<temp<<" "<<flush;
 	return temp;
 }
 

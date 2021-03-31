@@ -37,21 +37,25 @@ Functions::~Functions() {
 
 
 void Functions::read_config(vector<long> & num, ZZ & genq){
-	ifstream ist, ist1;
+	ifstream ist;
 	string name;
 	string line;
 	vector<string> lines;
 	vector<ZZ>* pq;
-	ZZ ran;
+	ZZ x;
 	long i, lq, lp, lp1;
 
 	name = "config";
 	ist.open (name.c_str());
-	if(!ist1) cout<<"Can't open "<< name.c_str();
+	if(!ist) 
+	{
+		cout<<"Can't open "<< name.c_str();
+		exit(1);
+	}
 
 	for(i=1; i<=13; i++){
 		getline(ist, line);
-	}//????
+	}
 	getline(ist, line);
 	/* 
 	This parameter determine which version of the program is executed. 
@@ -133,7 +137,7 @@ void Functions::read_config(vector<long> & num, ZZ & genq){
 			}
 			ist1.close();
 			cout<<NumBits(pq->at(1))<<" "<<NumBits(pq->at(0))<<endl;
-			G = G_q(pq->at(2), pq->at(1), pq->at(0));
+			G = G_q(pq->at(2), pq->at(1), pq->at(0));//ElGammal参数：生成元 阶数 模数
 			H = G_q(pq->at(2), pq->at(1), pq->at(0));
 		}
 		else{
@@ -145,8 +149,9 @@ void Functions::read_config(vector<long> & num, ZZ & genq){
 			}
 			ist1.close();
 			cout<<NumBits(pq->at(1))<<" "<<NumBits(pq->at(0))<<" "<<NumBits(pq->at(4))<<endl;
-			G = G_q(pq->at(2), pq->at(1), pq->at(0));
-			H = G_q(pq->at(5), pq->at(1), pq->at(4));
+			//参数：生成元 阶数 模数
+			G = G_q(pq->at(2), pq->at(1), pq->at(0));//Pedersen
+			H = G_q(pq->at(5), pq->at(1), pq->at(4));//ElGammal
 		}
 	}
 	else{
@@ -207,11 +212,22 @@ void Functions::read_config(vector<long> & num, ZZ & genq){
 		ist.close();
 	}
 
-
-
 	El.set_group(H);
-	ran = RandomBnd(H.get_ord());
-	El.set_sk(ran);
+	ist.open("ElGammal.txt",ios::in);
+	if(!ist) {
+		cout<<"\"ElGammal.txt\" does not exist, will be generated randomly"<< endl;
+		x = RandomBnd(H.get_ord());//随机生成私钥
+		El.set_sk(x);//生成公钥
+	}else{
+		string sk_str,pk_str;
+		ZZ sk,pk;
+		getline(ist, sk_str);
+		getline(ist, pk_str);
+		conv(sk,sk_str.c_str());
+		conv(pk,pk_str.c_str());
+		El.set_key(sk,pk);
+		// cout<<"pk"<<endl;
+	}
 	genq = pq->at(3);
 	delete pq;
 }
@@ -287,39 +303,82 @@ ost.close();
 
 void Functions:: createCipher(vector<vector<Cipher_elg>* >* C, vector<long> num){
 	long N = num[0];
-	long m = num[1];
-	long n = num[2];
+	long m = num[1];//行
+	long n = num[2];//列
 	vector<Cipher_elg>* r = 0;
 	Cipher_elg temp;
 	ZZ ran_2,ord;
 	Mod_p ran_1;
 	long count;
 	long i,j;
-	ofstream ost;
+	ofstream ost,ost2;
+	ifstream ist;
 
 	count = 1;
-	ord=H.get_ord();
+	ord=H.get_ord();//order of the group
 
+	Mod_p plaintexts[m][n];
 /*	string name = "example.txt";
 	ofstream ost;
 	ost.open(name.c_str(),ios::app);
 	ost<<"q "<<ord<<" p"<<H.get_mod()<<endl;
 	ost<<"Ciphertext c "<<endl;*/
 
+	
+	ist.open("plaintext.txt",ios::in);
+	if(!ist){
+		cout<<"\"plaintext.txt\" does not exist, will be generated randomly"<< endl;
+		ost2.open("plaintext.txt");
+		for (i=0; i<m; i++)
+		{
+			for (j = 0; j <n; j++)
+			{	
+				if(count <= N)
+				{
+					ran_1 = H.random_el(0);//明文m
+					plaintexts[i][j]=ran_1;
+				}else{
+					ran_1 = 1;//明文m
+					plaintexts[i][j]=ran_1;
+				}
+				ost2<<ran_1<<" ";
+			}
+			ost2<<endl;
+		}
+		ost2.close();
+	}else{
+		for (i=0; i<m; i++)
+			for (j = 0; j <n; j++)
+				ist>>plaintexts[i][j];
+	}
+
 	ost.open("cipher.txt");
 	for (i=0; i<m; i++){
 		r  = new vector<Cipher_elg>(n);
 		for (j = 0; j <n; j++){
+			ran_2 = RandomBnd(ord);//随机数r，也被称作临时密钥
+			ran_1 = plaintexts[i][j];//明文m
+			temp = El.encrypt(ran_1, ran_2);//得到(u,v)密文组，u = g^r，v = m×y^r，y为公钥
+			r->at(j)=temp;
+			count ++;
+			ost<<temp<<" ";
+		}
+		ost<<endl;
+		C->at(i)=r;
+	}
+	/* for (i=0; i<m; i++){
+		r  = new vector<Cipher_elg>(n);
+		for (j = 0; j <n; j++){
 			if (count <= N){
-				ran_2 = RandomBnd(ord);
-				ran_1 = H.random_el(0);
-				temp = El.encrypt(ran_1, ran_2);
+				ran_2 = RandomBnd(ord);//随机数r，也被称作临时密钥
+				ran_1 = H.random_el(0);//明文m
+				temp = El.encrypt(ran_1, ran_2);//得到(u,v)密文组，u = g^r，v = m×y^r，y为公钥
 				r->at(j)=temp;
 				count ++;
 					ost<<temp<<" ";
 			}
 			else
-			{
+			{//用1代替生成dummy密文
 				ran_2 = RandomBnd(ord);
 				temp = El.encrypt(1,ran_2);
 				r->at(j)=temp;
@@ -328,10 +387,70 @@ void Functions:: createCipher(vector<vector<Cipher_elg>* >* C, vector<long> num)
 		}
 			ost<<endl;
 		C->at(i)=r;
+	} */
+}
+
+void Functions:: inputCipher(vector<vector<Cipher_elg>* >* C, vector<long> num){
+	long m = num[1];//行
+	long n = num[2];//列
+	vector<Cipher_elg>* r = 0;
+	ifstream ist;
+	string line;
+	string pattern1=" ";
+	string pattern2=",";
+
+
+	ist.open("cipher.txt",ios::in);
+	if(!ist) {
+		cout<<"\"cipher.txt\" does not exist, will be generated randomly"<< endl;
+		createCipher(C,num);
+	}else{
+		for(int i=0;i<m;i++){
+			char* uvs[n];
+			r = new vector<Cipher_elg>(n);
+			getline(ist, line);
+			char * strc = new char[strlen(line.c_str())+1];
+    		strcpy(strc, line.c_str());   //string转换成C-string
+			uvs[0]=strtok(strc,pattern1.c_str());
+			for (int j = 1; j <n; j++)//分离出(u,v)
+				uvs[j]=strtok(NULL,pattern1.c_str());
+			for (int j = 0; j <n; j++)
+			{//分离出u和v
+				char *str_u_t=strtok(uvs[j],pattern2.c_str());
+				char *str_v=strtok(NULL,pattern2.c_str());
+				char str_u[strlen(str_u_t)]={'\0'};
+				memcpy(str_u,str_u_t+1,strlen(str_u_t));
+				str_u[strlen(str_u_t)-1]='\0';
+				str_v[strlen(str_v)-1]='\0';
+				ZZ u,v;
+				conv(u,str_u);
+				conv(v,str_v);
+				Cipher_elg temp = Cipher_elg(u,v,H.get_mod());
+				r->at(j)=temp;
+			}
+			delete[] strc;
+			C->at(i)=r;
+		}
 	}
 }
 
-
+void Functions:: decryptCipher(vector<vector<Cipher_elg>* >* C, vector<long> num,int flag){
+	long m = num[1];//行
+	long n = num[2];//列
+	string name[2]={"pOrigin.txt","pShuffle.txt"};
+	ofstream ost;
+	ost.open(name[flag],ios::out);
+	ZZ plaintext;
+	for(int i=0;i<m;i++)
+	{
+		for(int j=0;j<n;j++)
+		{
+			plaintext=El.decrypt(C->at(i)->at(j),flag);
+			ost<<plaintext<<" "<<flush;
+		}
+		ost<<endl;
+	}
+}
 
 //Creates a matrix of random numbers
 vector<vector<ZZ>* >* Functions::randomEl(vector<long> num){
@@ -361,21 +480,19 @@ void Functions::randomEl(vector<vector<ZZ>*>* R, vector<long> num){
 	long i,j;
 	ord= H.get_ord();
 
-	string name = "random.txt";
-	ofstream ost;
-	ost.open(name.c_str());
+	// string name = "random.txt";
+	// ofstream ost;
+	// ost.open(name.c_str());
 	for (i=0; i<m; i++){
 		r = new vector<ZZ>(n);
-
 		for (j = 0; j <n; j++){
 			r->at(j) = RandomBnd(ord);
-					ost<<r->at(j)<<" ";
+			// ost<<r->at(j)<<" ";
 		}
-
 		//		ost<<endl;
 		R->at(i)=r;
 	}
-	ost.close();
+	// ost.close();
 }
 
 //reencrypts the ciphertexts e using the permutation pi and the random elements R
@@ -402,11 +519,10 @@ vector<vector<Cipher_elg>* >*  Functions::reencryptCipher( vector<vector<Cipher_
 	return C;
 }
 
-
 void  Functions::reencryptCipher( vector<vector<Cipher_elg>* >* C, vector<vector<Cipher_elg>* >* e, vector<vector<vector<long>* >* >* pi,vector<vector<ZZ>*>* R, vector<long> num){
 	long n,m;
-	m = num[1];
-	n = num[2];
+	m = num[1];//行
+	n = num[2];//列
 	vector<Cipher_elg>* r =0;
 	Cipher_elg temp;
 	ZZ ran;
@@ -418,11 +534,11 @@ void  Functions::reencryptCipher( vector<vector<Cipher_elg>* >* C, vector<vector
 	for (i=0; i<m; i++){
 		r =new vector<Cipher_elg>(n);
 		for (j = 0; j <n; j++){
-			temp = El.encrypt(1,R->at(i)->at(j));
-			row = pi->at(i)->at(j)->at(0);
-			col = pi->at(i)->at(j)->at(1);
-			Cipher_elg::mult(r->at(j), temp, e->at(row)->at(col));
-					ost<<r->at(j)<<" ";
+			temp = El.encrypt(1,R->at(i)->at(j));//生成随机加密的密文1
+			row = pi->at(i)->at(j)->at(0);//shuffle后需要移动的行
+			col = pi->at(i)->at(j)->at(1);//shuffle后需要移动的列
+			Cipher_elg::mult(r->at(j), temp, e->at(row)->at(col));//同态乘法
+			ost<<r->at(j)<<endl;
 		}
 		//	ost<<endl;
 		C->at(i)=r;
@@ -448,7 +564,7 @@ void Functions::Hadamard(vector<ZZ>* ret, vector<ZZ>* x, vector<ZZ>* y){
 	}
 }
 
-//returns the bilinear map of x and y, defined as x(y�t)^T
+//returns the bilinear map of x and y, defined as x(y¡t)^T
 ZZ Functions::bilinearMap(vector<ZZ>* x, vector<ZZ>* y, vector<ZZ>* t){
 	long i, l;
 	ZZ result,ord, tem;
@@ -1097,8 +1213,8 @@ void Functions::commit(vector<vector<ZZ>*>* a_in, vector<ZZ>* r, vector<Mod_p>* 
 
 	l=a_in->size();
 
-//	string name = "example.txt";
-/*	ofstream ost;
+/*	string name = "example.txt";
+	ofstream ost;
 	ost.open(name.c_str(),ios::app);*/
 	for(i=0; i<l; i++){
 		r->at(i) = RandomBnd(ord);
